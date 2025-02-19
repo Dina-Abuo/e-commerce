@@ -16,8 +16,8 @@ const getAllProducts=asyncWrapper(async(req,res,next)=>{
 })
 
 const getSingleProduct=asyncWrapper(async(req,res,next)=>{
-    const ProductId=req.params.ProductId
-    const product=await Product.findById(ProductId)
+    const productId=req.params.productId
+    const product=await Product.findById(productId)
     
     if(!product){
         const error=appError.create("product not found ",404,httpStatusText.FAIL)
@@ -28,9 +28,24 @@ const getSingleProduct=asyncWrapper(async(req,res,next)=>{
 })
 
 const addProduct=asyncWrapper(async(req,res,next)=>{
-    
+        const { productName, title, description, price } = req.body;
 
-})
+        if (!productName || !title || !description || !price) {
+            return next(appError.create("All fields are required", 400, httpStatusText.FAIL));
+        }
+    
+        const newProduct = new Product({
+            productName,
+            title,
+            description,
+            price
+        });
+    
+        await newProduct.save();
+    
+        return res.status(201).json({ status: httpStatusText.SUCCESS, data: { product: newProduct } });
+    });
+    
 
 const updateProduct=asyncWrapper(async(req,res,next)=>{
     const productId=req.params.productId;

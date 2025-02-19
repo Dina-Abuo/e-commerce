@@ -1,8 +1,9 @@
 const express=require("express");
 const mongoose=require('mongoose');
-const  productsRouter  = require("./routers/products.router");
+const productsRouter  = require("./routers/products.router");
 const usersRouter  = require("./routers/users.router");
 const authRouter  = require("./routers/auth.router");
+const cartRouter  = require("./routers/cartItem.router");
 const httpStatusText=require("./utils/httpStatusText")
 
 require("dotenv").config()
@@ -24,6 +25,7 @@ app.use(express.json());
 app.use('/api/auth',authRouter);
 app.use('/api/user',usersRouter);
 app.use('/api/product',productsRouter);
+app.use('/api/cart',cartRouter);
 
 
 
