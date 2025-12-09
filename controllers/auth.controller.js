@@ -1,71 +1,108 @@
+const asyncWrapper = require("../middlewares/asyncWrapper");
+const User = require("../models/user.schema");
+const appError = require("../utils/appError");
+const bcrypt = require("bcrypt");
+const generateJWT = require("../utils/generateJWT");
+const httpStatusText = require("../utils/httpStatusText");
+const { validationResult } = require("express-validator");
 
-const asyncWrapper=require("../middlewares/asyncWrapper");
-const User=require("../models/user.schema");
-const appError=require('../utils/appError')
-const bcrypt=require("bcrypt");
-const generateJWT=require("../utils/generateJWT")
-const httpStatusText=require("../utils/httpStatusText")
+const login = asyncWrapper(async (req, res, next) => {
+  const { email, password } = req.body;
+  if (!email && !password) {
+    const error = appError.create(
+      "Email and  password are required ",
+      400,
+      httpStatusText.FAIL
+    );
+    return next(error);
+  }
+  const user = await User.findOne({ email: email });
+  if (!user) {
+    const error = appError.create("user not found", 400, httpStatusText.FAIL);
+    return next(error);
+  }
+  // compare password
+  const matchedPassword = await bcrypt.compare(password, user.password);
 
-const login=asyncWrapper(async(req,res,next)=>{
-    const {userName,password}=req.body;
-    if(!userName && !password){
-        const error =appError.create("userName and  password are required ",400,httpStatusText.FAIL)
-        return next(error)
-    }
-    const user=  await User.findOne({userName:userName})
-    if (!user){
-        const error =appError.create("user not found",400,httpStatusText.FAIL)
-        return next(error)
-    }
-    // compare password
-    const matchedPassword= await bcrypt.compare(password,user.password)
+  if (user && matchedPassword) {
+    // logged in  successfully
+    const token = await generateJWT({
+      userName: user.userName,
+      email: user.email,
+      id: user._id,
+      role: user.role,
+    });
+    return res.json({ status: httpStatusText.SUCCESS, data: { token } });
+  } else {
+    const error = appError.create(
+      " something wrong ",
+      500,
+      httpStatusText.FAIL
+    );
+    return next(error);
+  }
+});
 
-    if(user&&matchedPassword){
-        // logged in  successfully
-        const token=await generateJWT({userName:user.userName,id:user._id,role:user.role})
-        return res.json({status:httpStatusText.SUCCESS,data:{token}})
-    }else{
-        const error =appError.create(" something wrong ",500,httpStatusText.FAIL)
-        return next(error)
-    }
-})
+const register = asyncWrapper(async (req, res, next) => {
+  // Check validation errors
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const msg = errors
+      .array()
+      .map((e) => e.msg)
+      .join(" | ");
+    const error = appError.create(msg, 400, httpStatusText.FAIL);
+    return next(error);
+  }
 
+  const { firstName, lastName, password, role, email, phone, address } =
+    req.body;
 
-const register=asyncWrapper(async(req,res,next)=>{
+  // Check if email exists
+  const existingUser = await User.findOne({ email });
+  if (existingUser) {
+    const error = appError.create(
+      "Email already exists",
+      400,
+      httpStatusText.FAIL
+    );
+    return next(error);
+  }
 
-const {firstName,lastName,userName,password,role,email,phone}=req.body
+  //  Hash password
+  const hashedPassword = await bcrypt.hash(password, 10);
 
-const oldUser=await User.findOne({userName:userName});
+  //  Create new user
+  const newUser = new User({
+    firstName,
+    lastName,
+    password: hashedPassword,
+    role,
+    email,
+    phone,
+    address,
+  });
 
-if(oldUser){
-    const error = appError.create("user already exists",400,httpStatusText.FAIL)
-    return next(error)   
-}
+  //  Generate JWT
+  const token = await generateJWT({
+    id: newUser._id,
+    role: newUser.role,
+    email: newUser.email,
+  });
 
-// password hashed
-const hashedPassword=await bcrypt.hash(password,10)
+  newUser.token = token;
 
-const newUser= new User({
-        firstName,
-        lastName,
-        userName,
-        password:hashedPassword,
-        role,
-        email,
-        phone
-    })
+  //  Save user to DB
+  await newUser.save();
 
-// generate jwt token
-const token =await generateJWT({userName:newUser.userName,id:newUser._id,role:newUser.role})
-newUser.token=token
+  //  Response
+  return res.status(201).json({
+    status: httpStatusText.SUCCESS,
+    data: { user: newUser },
+  });
+});
 
-await newUser.save()
-
-return res.status(201).json({status:httpStatusText.SUCCESS,data:{user:newUser}})
-
-})
-
-
-module.exports={
-register,login
-}
+module.exports = {
+  register,
+  login,
+};
