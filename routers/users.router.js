@@ -1,18 +1,12 @@
-const express= require('express');
-const controllers=require('../controllers/user.controller');
-const verifyToken =require('../middlewares/verifyToken');
+import express from "express";
+import controllers from "../controllers/user.controller.js";
+import verifyToken from "../middlewares/verifyToken.js";
 
+const router = express.Router();
 
-const router =express.Router()
+router.route("/").get(verifyToken, controllers.getAllUsers);
+router.route("/:userId")
+  .delete(verifyToken, controllers.deleteUser)
+  .put(verifyToken, controllers.updateUser);
 
-
-router.route('/').get(verifyToken, controllers.getAllUsers);
-router.route('/:userId').delete(verifyToken,controllers.deleteUser)
-                        .put(verifyToken,controllers.updateUser);
-
-module.exports=router
-
-
-
-
-
+export default router;

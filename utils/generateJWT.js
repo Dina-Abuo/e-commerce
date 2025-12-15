@@ -1,7 +1,7 @@
 
-const jwt=require("jsonwebtoken");
 
-module.exports=async(payload)=>{
+import jwt from"jsonwebtoken";
+export default async(payload)=>{
 
 const token = await jwt.sign(
     payload,

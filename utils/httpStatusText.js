@@ -2,7 +2,7 @@ const SUCCESS="success";
 const FAIL="fail";
 const ERROR="error";
 
-module.exports={
+export default{
     SUCCESS,
     FAIL,
     ERROR

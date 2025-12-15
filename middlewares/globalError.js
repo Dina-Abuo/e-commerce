@@ -1,5 +1,5 @@
-const httpStatusText = require("../utils/httpStatusText");
 
+import httpStatusText from "../utils/httpStatusText.js";  
 const globalError = (error, req, res, next) => {
   const statusCode = error.statusCode || 500;
 
@@ -10,4 +10,4 @@ const globalError = (error, req, res, next) => {
   });
 };
 
-module.exports = globalError;
+export default globalError;

@@ -1,7 +1,6 @@
-const mongoose = require("mongoose");
-const validator = require("validator");
-const userRoles = require("../utils/userRoles");
-
+import mongoose from "mongoose";
+import validator from "validator";
+import userRoles from "../utils/userRoles.js";
 const userSchema = new mongoose.Schema({
   firstName: {
     type: String,
@@ -70,4 +69,4 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.model("User", userSchema);
+export default mongoose.model("User", userSchema);

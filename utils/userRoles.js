@@ -3,4 +3,4 @@ const userRoles={
     ADMIN:"admin",
     MANGER:"manger"
 }
-module.exports=userRoles
+export default userRoles

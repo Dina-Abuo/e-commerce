@@ -1,10 +1,10 @@
-const asyncWrapper = require("../middlewares/asyncWrapper");
-const User = require("../models/user.schema");
-const appError = require("../utils/appError");
-const bcrypt = require("bcrypt");
-const generateJWT = require("../utils/generateJWT");
-const httpStatusText = require("../utils/httpStatusText");
-const { validationResult } = require("express-validator");
+import asyncWrapper from "../middlewares/asyncWrapper.js";
+import User from "../models/user.schema.js";
+import appError from "../utils/appError.js";
+import bcrypt from "bcrypt";
+import generateJWT from "../utils/generateJWT.js";
+import httpStatusText from "../utils/httpStatusText.js";
+import { validationResult } from "express-validator";
 
 const login = asyncWrapper(async (req, res, next) => {
   const { email, password } = req.body;
@@ -16,16 +16,13 @@ const login = asyncWrapper(async (req, res, next) => {
     );
     return next(error);
   }
-  const user = await User.findOne({ email: email });
+  const user = await User.findOne({ email });
   if (!user) {
     const error = appError.create("user not found", 400, httpStatusText.FAIL);
     return next(error);
   }
-  // compare password
   const matchedPassword = await bcrypt.compare(password, user.password);
-
   if (user && matchedPassword) {
-    // logged in  successfully
     const token = await generateJWT({
       userName: user.userName,
       email: user.email,
@@ -44,7 +41,6 @@ const login = asyncWrapper(async (req, res, next) => {
 });
 
 const register = asyncWrapper(async (req, res, next) => {
-  // Check validation errors
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     const msg = errors
@@ -58,7 +54,6 @@ const register = asyncWrapper(async (req, res, next) => {
   const { firstName, lastName, password, role, email, phone, address } =
     req.body;
 
-  // Check if email exists
   const existingUser = await User.findOne({ email });
   if (existingUser) {
     const error = appError.create(
@@ -69,10 +64,8 @@ const register = asyncWrapper(async (req, res, next) => {
     return next(error);
   }
 
-  //  Hash password
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  //  Create new user
   const newUser = new User({
     firstName,
     lastName,
@@ -83,7 +76,6 @@ const register = asyncWrapper(async (req, res, next) => {
     address,
   });
 
-  //  Generate JWT
   const token = await generateJWT({
     id: newUser._id,
     role: newUser.role,
@@ -92,17 +84,15 @@ const register = asyncWrapper(async (req, res, next) => {
 
   newUser.token = token;
 
-  //  Save user to DB
   await newUser.save();
 
-  //  Response
   return res.status(201).json({
     status: httpStatusText.SUCCESS,
     data: { user: newUser },
   });
 });
 
-module.exports = {
+export default {
   register,
   login,
 };

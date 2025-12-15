@@ -1,10 +1,8 @@
-
-const CartItem=require("../models/cartItem.schema");
-const Product=require("../models/product.schema");
-const asyncWrapper=require("../middlewares/asyncWrapper");
-const appError=require("../utils/appError");
-const httpStatusText=require("../utils/httpStatusText");
-
+import CartItem from "../models/cartItem.schema.js";
+import Product from "../models/product.schema.js";
+import asyncWrapper from "../middlewares/asyncWrapper.js";
+import appError from "../utils/appError.js";
+import httpStatusText from "../utils/httpStatusText.js";
 
 const addToCart = asyncWrapper(async (req, res, next) => {
     const { productId, quantity } = req.body;
@@ -93,8 +91,7 @@ const BuyItemWithoutDiscount = asyncWrapper(async (req, res, next) => {
 });
 
 
-
-module.exports={
+export default{
     addToCart,
     deleteCartItemById,
     BuyItemWithDiscount,

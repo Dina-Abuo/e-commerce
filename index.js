@@ -1,15 +1,17 @@
-const express = require("express");
-const mongoose = require("mongoose");
-const productsRouter = require("./routers/products.router");
-const usersRouter = require("./routers/users.router");
-const authRouter = require("./routers/auth.router");
-const cartRouter = require("./routers/cartItem.router");
-const httpStatusText = require("./utils/httpStatusText");
-const globalError = require("./middlewares/globalError");
+import express from "express";
+import mongoose from "mongoose";
+import productsRouter from "./routers/products.router.js";
+import categoriesRouter from "./routers/category.router.js";
+import usersRouter from "./routers/users.router.js";
+import authRouter from "./routers/auth.router.js";
+import cartRouter from "./routers/cartItem.router.js";
+import httpStatusText from "./utils/httpStatusText.js";
+import globalError from "./middlewares/globalError.js";
 
-const cors = require("cors");
+import cors from "cors";
+import dotenv from "dotenv";
 
-require("dotenv").config();
+dotenv.config();
 
 const port = process.env.PORT || 4000;
 const app = express();
@@ -23,14 +25,15 @@ mongoose
   .catch((err) => {
     console.log(`error with connecting with the db ${err}`);
   });
+
 app.use(cors());
 app.use(express.json());
 
 // routes
-
 app.use("/api/auth", authRouter);
 app.use("/api/user", usersRouter);
 app.use("/api/product", productsRouter);
+app.use("/api/category", categoriesRouter);
 app.use("/api/cart", cartRouter);
 
 // global middleware for not found router
@@ -42,7 +45,6 @@ app.all("*", (req, res, next) => {
 });
 
 // global error handler
-
 app.use(globalError);
 
 mongoose.connection.on("error", (err) => {
