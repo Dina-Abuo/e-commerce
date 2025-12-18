@@ -1,10 +1,14 @@
 import express from "express";
 import mongoose from "mongoose";
+// routers
 import productsRouter from "./routers/products.router.js";
 import categoriesRouter from "./routers/category.router.js";
 import usersRouter from "./routers/users.router.js";
 import authRouter from "./routers/auth.router.js";
 import cartRouter from "./routers/cartItem.router.js";
+import paymentRouter from "./routers/payment.routes.js";
+import ordersRouter from "./routers/order.routes.js";
+
 import httpStatusText from "./utils/httpStatusText.js";
 import globalError from "./middlewares/globalError.js";
 
@@ -34,6 +38,8 @@ app.use("/api/auth", authRouter);
 app.use("/api/user", usersRouter);
 app.use("/api/product", productsRouter);
 app.use("/api/category", categoriesRouter);
+app.use("/api/orders", ordersRouter);
+app.use("/api/payment", paymentRouter);
 app.use("/api/cart", cartRouter);
 
 // global middleware for not found router
