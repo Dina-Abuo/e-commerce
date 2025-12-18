@@ -5,7 +5,6 @@ import productsRouter from "./routers/products.router.js";
 import categoriesRouter from "./routers/category.router.js";
 import usersRouter from "./routers/users.router.js";
 import authRouter from "./routers/auth.router.js";
-import cartRouter from "./routers/cartItem.router.js";
 import paymentRouter from "./routers/payment.routes.js";
 import ordersRouter from "./routers/order.routes.js";
 
@@ -40,7 +39,7 @@ app.use("/api/product", productsRouter);
 app.use("/api/category", categoriesRouter);
 app.use("/api/orders", ordersRouter);
 app.use("/api/payment", paymentRouter);
-app.use("/api/cart", cartRouter);
+
 
 // global middleware for not found router
 app.all("*", (req, res, next) => {
